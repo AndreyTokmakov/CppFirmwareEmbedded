@@ -17,6 +17,8 @@ Description : SerialPortReader.cpp
 #include <array>
 #include <vector>
 #include <iomanip>
+#include <chrono>
+#include <sstream>
 
 
 #include <cerrno>
@@ -42,7 +44,7 @@ namespace
         constexpr static size_type BufferSize { 32 * 1024 };
 
         size_type head { 0 };
-        size_type tail { 0 };
+        // size_type tail { 0 };
         std::array<Byte, BufferSize> data{};
     };
 
@@ -182,20 +184,55 @@ namespace
 
 namespace
 {
+    void parseBytesAsDate(const std::span<const uint8_t> strBytes)
+    {
+        const std::string_view str(reinterpret_cast<const char*>(strBytes.data()), strBytes.size());
+        std::chrono::sys_time<std::chrono::microseconds> time;
+
+        std::istringstream iss(str);
+        iss >> std::chrono::parse("%Y-%m-%d %H:%M:%OS", time);
+        if (iss.fail()){
+            std::cout << "Parse error\n";
+            return;
+        }
+        std::cout << std::chrono::floor<std::chrono::seconds>(time) << '\n';
+    }
     struct TestDecoder
     {
+        constexpr static uint8_t eof { 0x0A };
         Buffer& buffer;
+        size_t head { 0 };
+        size_t tail { 0 };
 
-        void parse( const ssize_t bytes)
+        void parse(const size_t bytes)
         {
-            std::cout << "Received " << bytes << " bytes\n";
-            std::cout << "Haad: " << buffer.head << ": ";
-            for (ssize_t idx = 0; idx < bytes; ++idx)
+            bool gotMessage { false };
+            for (size_t idx = buffer.head, end = buffer.head + bytes; idx < end; ++idx) {
+                if (eof == buffer.data[idx]) {
+                    tail = idx;
+                    gotMessage = true;
+                    break;
+                }
+            }
+
+            if (gotMessage)
             {
-                std::print("{:02x} ", buffer.data[idx + buffer.head]);
+                /*std::cout << "Received " << bytes << " bytes. [Buff head: " << buffer.head << ". Head: " << head << ", tail: " << tail << "] ";
+                std::cout << "[" << (tail - head) <<  " bytes] ";
+                for (size_t idx = head; idx < tail; ++idx) {
+                    std::print("{:02x} ", buffer.data[idx]);
+                }
+                std::cout << '\n';*/
+
+                parseBytesAsDate(std::span<const uint8_t>(buffer.data.data() + head, tail - head));
+                head = tail + 1;
+
+                /* if (buffer.head == head) {
+                    buffer.head  = tail = head = 0;
+                    return;
+                }*/
             }
             buffer.head += bytes;
-            std::cout << '\n';
         }
     };
 }
