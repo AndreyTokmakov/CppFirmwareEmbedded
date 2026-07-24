@@ -18,6 +18,7 @@ else()
     set(THIRD_PARTY_DIR /home/andtokm/Projects/third_party)
 endif()
 
+add_subdirectory(attenuation)
 add_subdirectory(experiments)
 add_subdirectory(tools)
 add_subdirectory(uart)
