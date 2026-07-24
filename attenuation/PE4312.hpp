@@ -16,105 +16,185 @@ Description : PE4312.hpp
 
 namespace rf
 {   /**
-     * @brief Driver for the pSemi PE4312 digital step attenuator.
+     * Represents the pSemi PE4312 digital step attenuator.
      *
-     * Features:
-     *   - 0.0 ... 31.5 dB
-     *   - 0.5 dB step
-     *   - 6-bit attenuation word
+     * The PE4312 is a digitally controlled RF step attenuator designed for
+     * applications requiring accurate and repeatable signal level control.
+     * The device is programmed through a serial interface and provides
+     * programmable attenuation over a wide dynamic range.
      *
-     * The class stores the requested attenuation locally.
-     * Hardware is updated only after Apply() is called.
+     * Device characteristics:
+     *   - Attenuation range: 0.0 dB to 31.5 dB
+     *   - Resolution: 0.5 dB
+     *   - 6-bit attenuation control word
+     *   - Low insertion loss
+     *   - High attenuation accuracy
+     *   - Suitable for frequencies from DC up to several GHz
+     *
+     * Typical applications:
+     *   - Software Defined Radio (SDR)
+     *   - RF front-end gain control
+     *   - Automatic Gain Control (AGC)
+     *   - Test and measurement equipment
+     *   - Radar systems
+     *   - Wireless communication systems
+     *
+     * This class separates the device logic from the hardware transport layer.
+     * Attenuation values are validated and converted into the corresponding
+     * control word, while the actual SPI transaction is delegated to
+     * WriteAttenuationCode(), allowing the driver to be reused on different
+     * platforms.
+     *
+     * The requested attenuation is cached locally and is not written to the
+     * hardware until Apply() is called. This allows multiple configuration
+     * changes to be committed as a single hardware transaction.
      */
     class PE4312 : public AttenuatorBase
     {
     public:
 
+        /**
+         * Creates a new PE4312 driver instance.
+         */
         PE4312();
 
         /**
-         * @brief Returns device name.
+         * Returns a human-readable device name.
          */
+        [[nodiscard]]
         std::string GetName() const override;
 
         /**
-         * @brief Returns true because attenuation is programmable.
+         * Indicates whether the attenuation level can be modified.
+         *
+         * The PE4312 is a fully programmable digital attenuator and always
+         * returns true.
          */
+        [[nodiscard]]
         bool IsProgrammable() const override;
 
         /**
-         * @brief Stores a new attenuation value.
+         * Requests a new attenuation value.
          *
-         * The value is rounded to the nearest supported step.
-         * Hardware is not accessed until Apply() is called.
+         * The requested value is validated against the supported operating
+         * range and rounded to the nearest value representable by the device.
          *
-         * @param attenuationDb Requested attenuation.
+         * The hardware is not accessed immediately. The new attenuation is
+         * stored internally and becomes active only after Apply() is called.
+         *
+         * @param attenuationDb Desired attenuation in dB.
+         *
+         * @return Operation status.
          */
         Error SetAttenuation(double attenuationDb) override;
 
         /**
-         * @brief Returns current attenuation.
+         * Returns the attenuation currently programmed into the device.
+         *
+         * The returned value reflects the active hardware configuration
+         * rather than any pending changes.
          */
+        [[nodiscard]]
         double GetAttenuation() const override;
 
         /**
-         * @brief Returns minimum supported attenuation.
+         * Returns the minimum attenuation supported by the device.
          */
+        [[nodiscard]]
         double GetMinimumAttenuation() const override;
 
         /**
-         * @brief Returns maximum supported attenuation.
+         * Returns the maximum attenuation supported by the device.
          */
+        [[nodiscard]]
         double GetMaximumAttenuation() const override;
 
         /**
-         * @brief Returns attenuation resolution.
+         * Returns the attenuation resolution.
+         *
+         * The PE4312 supports attenuation increments of 0.5 dB.
          */
+        [[nodiscard]]
         double GetStepSize() const override;
 
         /**
-         * @brief Writes pending configuration to hardware.
+         * Applies the pending attenuation to the hardware.
+         *
+         * If no configuration changes are pending, the function returns
+         * immediately without performing any hardware access.
+         *
+         * @return Operation status.
          */
         Error Apply() override;
 
         /**
-         * @brief Returns true while hardware update is in progress.
+         * Indicates whether a hardware update is currently in progress.
+         *
+         * This function is primarily intended for asynchronous or
+         * platform-specific implementations.
          */
+        [[nodiscard]]
         bool IsBusy() const override;
 
         /**
-         * @brief Restores default attenuation (0 dB).
+         * Restores the default device configuration.
+         *
+         * The PE4312 powers up with 0 dB attenuation. Calling Reset()
+         * restores this configuration and applies it to the hardware.
+         *
+         * @return Operation status.
          */
         Error Reset() override;
 
     protected:
 
         /**
-         * @brief Writes attenuation register to the hardware.
+         * Writes an encoded attenuation control word to the device.
          *
-         * Derived platform-specific classes should implement the
-         * actual SPI transaction.
+         * This function forms the hardware abstraction layer of the driver.
+         * Platform-specific implementations are responsible for performing
+         * the actual SPI transaction.
          *
-         * @param value 6-bit attenuation register.
+         * @param controlWord Encoded attenuation control word.
+         *
+         * @return Operation status.
          */
-        virtual Error WriteRegister(uint8_t value) = 0;
+        virtual Error WriteAttenuationCode(uint8_t controlWord) = 0;
 
     private:
 
         /**
-         * @brief Converts attenuation in dB to PE4312 register value.
+         * Builds a PE4312 attenuation control word from the specified
+         * attenuation value.
+         *
+         * The returned value can be transmitted directly to the device
+         * through the serial interface.
+         *
+         * @param attenuationDb Attenuation in dB.
+         *
+         * @return Encoded attenuation control word.
          */
-        static uint8_t EncodeAttenuation(double attenuationDb) ;
+        [[nodiscard]]
+        static uint8_t BuildControlWord(double attenuationDb);
 
     private:
 
-        double currentAttenuation = 0.0;
+        /// Attenuation currently programmed into the device.
+        double appliedAttenuation = 0.0;
+
+        /// Attenuation waiting to be written to the hardware.
         double pendingAttenuation = 0.0;
 
-        bool dirty = false;
-        bool busy = false;
-    };
+        /// Indicates that the pending configuration has not yet been applied.
+        bool configurationDirty = false;
 
+        /// Indicates that a hardware update is currently in progress.
+        bool updateInProgress = false;
+
+        static constexpr double MinimumAttenuation = 0.0;
+        static constexpr double MaximumAttenuation = 31.5;
+        static constexpr double StepSize = 0.5;
+    };
 }
 
 #endif //CPPFIRMWAREEMBEDDED_PE4312_HPP

@@ -75,100 +75,150 @@ used by the underlying platform.
 
 namespace rf
 {
-    class IAd9361
+    class IAd9361RxChannel
     {
     public:
 
-        virtual ~IAd9361() = default;
+        virtual ~IAd9361RxChannel() = default;
 
         /**
-         * @brief Sets RX attenuation (hardware gain) in Manual Gain Control mode.
+         * Programs the receive attenuation of the AD9361 RX channel.
+         *
+         * The supplied attenuation value is assumed to be already validated by the
+         * caller.
+         *
+         * @param attenuationDb Desired attenuation in dB.
+         *
+         * @return Operation status.
          */
         virtual Error SetRxAttenuation(double attenuationDb) = 0;
 
         /**
-         * @brief Returns current RX attenuation.
+         * Returns the attenuation currently programmed into the RX channel.
+         *
+         * @return Current attenuation in dB.
          */
         [[nodiscard]]
         virtual double GetRxAttenuation() const = 0;
     };
 
     /**
-     * @brief AD9361 RX attenuator adapter.
+     * Provides an IAttenuator adapter for the AD9361 receive signal path.
      *
-     * Provides a generic attenuator interface for the RX gain
-     * control of the AD9361 transceiver.
+     * Unlike dedicated RF attenuator ICs such as the PE4312, attenuation in the
+     * AD9361 is implemented as part of the receiver gain control architecture.
+     * This class exposes that functionality through the generic IAttenuator
+     * interface, allowing application code to configure different RF devices
+     * using the same API.
+     *
+     * Configuration changes are cached locally and applied to the hardware only
+     * when Apply() is invoked.
      */
     class AD9361RxAttenuator : public AttenuatorBase
     {
     public:
 
-        explicit AD9361RxAttenuator(IAd9361& device);
+        /**
+         * Creates an attenuator adapter for the specified AD9361 RX channel.
+         *
+         * @param channel AD9361 receive channel implementation.
+         */
+        explicit AD9361RxAttenuator(IAd9361RxChannel& channel);
 
         /**
-         * @brief Returns device name.
+         * Returns a human-readable device name.
          */
         [[nodiscard]]
         std::string GetName() const override;
 
         /**
-         * @brief AD9361 attenuation is programmable.
+         * Indicates whether attenuation can be modified.
+         *
+         * The AD9361 supports programmable receive attenuation and always
+         * returns true.
          */
         [[nodiscard]]
         bool IsProgrammable() const override;
 
         /**
-         * @brief Sets RX attenuation.
+         * Requests a new attenuation value.
          *
-         * The value is stored locally until Apply() is called.
+         * The requested value is validated, quantized to the supported hardware
+         * resolution and stored locally until Apply() is called.
+         *
+         * @param attenuationDb Desired attenuation in dB.
+         *
+         * @return Operation status.
          */
         Error SetAttenuation(double attenuationDb) override;
 
         /**
-         * @brief Returns currently applied attenuation.
+         * Returns the attenuation currently programmed into the hardware.
          */
         [[nodiscard]]
         double GetAttenuation() const override;
 
         /**
-         * @brief Returns minimum supported attenuation.
+         * Returns the minimum supported attenuation.
          */
+        [[nodiscard]]
         double GetMinimumAttenuation() const override;
 
         /**
-         * @brief Returns maximum supported attenuation.
+         * Returns the maximum supported attenuation.
          */
+        [[nodiscard]]
         double GetMaximumAttenuation() const override;
 
         /**
-         * @brief Returns attenuation resolution.
+         * Returns the attenuation resolution.
          */
+        [[nodiscard]]
         double GetStepSize() const override;
 
         /**
-         * @brief Applies pending attenuation to the hardware.
+         * Applies the pending attenuation to the AD9361.
+         *
+         * If no configuration changes are pending, the function returns immediately.
+         *
+         * @return Operation status.
          */
         Error Apply() override;
 
         /**
-         * @brief Returns busy state.
+         * Indicates whether a hardware update is currently in progress.
          */
+        [[nodiscard]]
         bool IsBusy() const override;
 
         /**
-         * @brief Restores default attenuation.
+         * Restores the default attenuation and applies it to the hardware.
+         *
+         * @return Operation status.
          */
         Error Reset() override;
 
     private:
 
-        IAd9361& device;
+        static constexpr double MinimumAttenuation = 0.0;
+        static constexpr double MaximumAttenuation = 89.75;
+        static constexpr double StepSize = 0.25;
 
-        double currentAttenuation = 0.0;
+    private:
+
+        IAd9361RxChannel& channel;
+
+        /// Attenuation currently programmed into the hardware.
+        double appliedAttenuation = 0.0;
+
+        /// Attenuation waiting to be applied.
         double pendingAttenuation = 0.0;
 
-        bool dirty = false;
-        bool busy = false;
+        /// Indicates that the pending configuration has not yet been applied.
+        bool configurationDirty = false;
+
+        /// Indicates that a hardware update is currently in progress.
+        bool updateInProgress = false;
     };
 }
 

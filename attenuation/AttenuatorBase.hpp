@@ -16,9 +16,7 @@ Description : AttenuatorBase.hpp
 #include "IAttenuator.hpp"
 
 namespace rf
-{
-
-    /**
+{   /**
      * @brief Base implementation shared by most attenuators.
      *
      * Provides common implementations for device state management
@@ -40,6 +38,7 @@ namespace rf
             return Error::None;
         }
 
+        [[nodiscard]]
         bool IsEnabled() const override
         {
             return enabled;
@@ -50,18 +49,19 @@ namespace rf
             return Error::None;
         }
 
+        [[nodiscard]]
         bool IsBusy() const override
         {
             return false;
         }
 
-        bool IsValidAttenuation(double attenuationDb) const override
+        [[nodiscard]]
+        bool IsValidAttenuation(const double attenuationDb) const override
         {
-            return
-                attenuationDb >= GetMinimumAttenuation() &&
-                attenuationDb <= GetMaximumAttenuation();
+            return attenuationDb >= GetMinimumAttenuation() && attenuationDb <= GetMaximumAttenuation();
         }
 
+        [[nodiscard]]
         double QuantizeAttenuation(double attenuationDb) const override
         {
             const double min = GetMinimumAttenuation();
@@ -69,9 +69,7 @@ namespace rf
             const double step = GetStepSize();
 
             attenuationDb = std::clamp(attenuationDb, min, max);
-
-            if (step == 0.0)
-            {
+            if (step == 0.0){
                 return min;
             }
 

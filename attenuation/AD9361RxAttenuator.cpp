@@ -11,7 +11,7 @@ Description : AD9361RxAttenuator.cpp
 
 namespace rf
 {
-    AD9361RxAttenuator::AD9361RxAttenuator(IAd9361& device) : device(device)
+    AD9361RxAttenuator::AD9361RxAttenuator(IAd9361RxChannel& channel): channel(channel)
     {
     }
 
@@ -25,69 +25,73 @@ namespace rf
         return true;
     }
 
-    Error AD9361RxAttenuator::SetAttenuation(const double attenuationDb)
+    Error AD9361RxAttenuator::SetAttenuation(double attenuationDb)
     {
-        if (!IsValidAttenuation(attenuationDb)) {
+        if (!IsValidAttenuation(attenuationDb))
+        {
             return Error::InvalidParameter;
         }
 
         pendingAttenuation = QuantizeAttenuation(attenuationDb);
-        dirty = true;
+        configurationDirty = true;
 
         return Error::None;
     }
 
     double AD9361RxAttenuator::GetAttenuation() const
     {
-        return currentAttenuation;
+        return appliedAttenuation;
     }
 
     double AD9361RxAttenuator::GetMinimumAttenuation() const
     {
-        return 0.0;
+        return MinimumAttenuation;
     }
 
     double AD9361RxAttenuator::GetMaximumAttenuation() const
     {
-        return 89.75;
+        return MaximumAttenuation;
     }
 
     double AD9361RxAttenuator::GetStepSize() const
     {
-        return 0.25;
+        return StepSize;
     }
 
     Error AD9361RxAttenuator::Apply()
     {
-        if (!dirty) {
+        if (!configurationDirty)
+        {
             return Error::None;
         }
 
-        busy = true;
-        const Error error = device.SetRxAttenuation(pendingAttenuation);
+        updateInProgress = true;
 
-        busy = false;
-        if (error != Error::None) {
+        const Error error = channel.SetRxAttenuation(pendingAttenuation);
+
+        updateInProgress = false;
+
+        if (error != Error::None)
+        {
             return error;
         }
 
-        currentAttenuation = pendingAttenuation;
-        dirty = false;
+        appliedAttenuation = pendingAttenuation;
+        configurationDirty = false;
 
         return Error::None;
     }
 
     bool AD9361RxAttenuator::IsBusy() const
     {
-        return busy;
+        return updateInProgress;
     }
 
     Error AD9361RxAttenuator::Reset()
     {
-        pendingAttenuation = 0.0;
-        dirty = true;
+        pendingAttenuation = MinimumAttenuation;
+        configurationDirty = true;
 
         return Apply();
     }
-
-}
+} // namespace rf

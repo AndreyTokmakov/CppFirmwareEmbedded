@@ -14,65 +14,96 @@ Description : FixedAttenuator.hpp
 
 namespace rf
 {   /**
-     * @brief Represents a fixed RF attenuator.
+     * Represents a fixed RF attenuator.
      *
-     * The attenuation value is defined at construction time and cannot
-     * be modified during runtime.
+     * A fixed attenuator provides a constant attenuation level that is determined
+     * by the hardware and cannot be changed during runtime.
+     *
+     * Such attenuators are commonly used to:
+     *  - protect sensitive RF inputs from excessive signal levels;
+     *  - improve impedance matching between RF components;
+     *  - reduce signal power by a known amount;
+     *  - simulate cable or path losses during testing;
+     *  - calibrate RF measurement equipment.
+     *
+     * Unlike programmable attenuators, this device always operates with the same
+     * attenuation value that is specified during construction.
+     *
+     * Typical examples include Mini-Circuits VAT series, Pasternack PE70xx series
+     * and other passive RF attenuators.
      */
     class FixedAttenuator : public AttenuatorBase
     {
     public:
 
         /**
-         * @brief Creates a fixed attenuator.
+         * Creates a fixed attenuator instance.
          *
          * @param attenuationDb Fixed attenuation in dB.
          */
         explicit FixedAttenuator(double attenuationDb);
 
         /**
-         * @brief Returns device name.
+         * Returns a human-readable device name.
          */
+        [[nodiscard]]
         std::string GetName() const override;
 
         /**
-         * @brief Returns false since this device cannot be reconfigured.
+         * Indicates whether the attenuation level can be modified.
+         *
+         * Fixed attenuators always return false because their attenuation
+         * is determined entirely by the hardware.
          */
+        [[nodiscard]]
         bool IsProgrammable() const override;
 
         /**
-         * @brief Fixed attenuators do not support changing attenuation.
+         * Attempts to change the attenuation level.
+         *
+         * Since the attenuation of this device is fixed by design, the
+         * requested value is ignored and Error::NotSupported is returned.
+         *
+         * @param attenuationDb Requested attenuation in dB.
          *
          * @return Error::NotSupported.
          */
         Error SetAttenuation(double attenuationDb) override;
 
         /**
-         * @brief Returns the fixed attenuation value.
+         * Returns the fixed attenuation value configured during construction.
          */
+        [[nodiscard]]
         double GetAttenuation() const override;
 
         /**
-         * @brief Returns the minimum supported attenuation.
+         * Returns the minimum supported attenuation.
+         *
+         * Since the attenuation is fixed, this value is identical to GetMaximumAttenuation().
          */
+        [[nodiscard]]
         double GetMinimumAttenuation() const override;
 
         /**
-         * @brief Returns the maximum supported attenuation.
+         * Returns the maximum supported attenuation.
+         *
+         * Since the attenuation is fixed, this value is identical to GetMinimumAttenuation().
          */
+        [[nodiscard]]
         double GetMaximumAttenuation() const override;
 
         /**
-         * @brief Returns attenuation resolution.
+         * Returns the attenuation resolution.
          *
-         * Always returns 0 for fixed attenuators.
+         * Fixed attenuators have no programmable resolution and therefore always return 0.0.
          */
+        [[nodiscard]]
         double GetStepSize() const override;
 
         /**
-         * @brief Restores the default device state.
+         * Restores the default operating state.
          *
-         * No hardware operation is required.
+         * No hardware configuration is required because the attenuation is permanently defined by the device.
          */
         Error Reset() override;
 
