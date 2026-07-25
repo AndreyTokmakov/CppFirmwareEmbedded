@@ -1,58 +1,56 @@
 /**============================================================================
-Name        : PE4312.hpp
-Created on  : 24.07.2026
+Name        : PE43711.hpp
+Created on  : 25.07.2026
 Author      : Andrei Tokmakov
 Version     : 1.0
 Copyright   : Your copyright notice
-Description : PE4312.hpp
+Description : PE43711.hpp
 ============================================================================**/
 
-#ifndef CPPFIRMWAREEMBEDDED_PE4312_HPP
-#define CPPFIRMWAREEMBEDDED_PE4312_HPP
-
-#include <cstdint>
+#ifndef CPPFIRMWAREEMBEDDED_PE43711_HPP
+#define CPPFIRMWAREEMBEDDED_PE43711_HPP
 
 #include "DigitalStepAttenuator.hpp"
 
 namespace rf
 {
     /**
-     * Represents the pSemi PE4312 digital step attenuator.
+     * Represents the pSemi PE43711 digital step attenuator.
      *
-     * The PE4312 is a digitally controlled RF step attenuator providing
-     * accurate and repeatable RF signal level adjustment over a wide
-     * frequency range. The device is programmed through a serial interface
-     * using a 6-bit attenuation code.
+     * The PE43711 is a digitally controlled RF step attenuator providing
+     * high-resolution attenuation control over a wide frequency range.
+     * The device is programmed through a serial interface using a 7-bit
+     * attenuation control code.
      *
      * Device characteristics:
-     *   - Attenuation range: 0.0 dB to 31.5 dB
-     *   - Resolution: 0.5 dB
-     *   - 6-bit attenuation code
+     *   - Attenuation range: 0.0 dB to 31.75 dB
+     *   - Resolution: 0.25 dB
+     *   - 7-bit attenuation code
      *   - Low insertion loss
      *   - High attenuation accuracy
-     *   - Operating frequency from DC to several GHz
+     *   - Broadband RF operation
      *
      * Typical applications:
      *   - Software Defined Radio (SDR)
      *   - RF front-end gain control
      *   - Automatic Gain Control (AGC)
+     *   - Wireless communication systems
      *   - Test and measurement equipment
      *   - Radar systems
-     *   - Wireless communication systems
      *
-     * This class implements only the PE4312-specific functionality.
+     * This class implements only the PE43711-specific functionality.
      * All common programmable attenuator logic, including attenuation
      * validation, quantization, deferred configuration updates and state
      * management, is implemented by DigitalStepAttenuator.
      */
-    class PE4312 : public DigitalStepAttenuator
+    class PE43711 : public DigitalStepAttenuator
     {
     public:
 
         /**
-         * Creates a new PE4312 driver instance.
+         * Creates a new PE43711 driver instance.
          */
-        PE4312();
+        PE43711();
 
         /**
          * Returns a human-readable device name.
@@ -65,8 +63,8 @@ namespace rf
     protected:
 
         /**
-         * Encodes an attenuation value into the 6-bit attenuation code
-         * expected by the PE4312.
+         * Encodes an attenuation value into the 7-bit attenuation code
+         * expected by the PE43711.
          *
          * The returned value represents only the attenuation field.
          * The base implementation of BuildControlWord() uses this value
@@ -80,18 +78,17 @@ namespace rf
         uint16_t EncodeAttenuation(double attenuationDb) const override;
 
         /**
-         * Programs the specified control word into the PE4312.
+         * Programs the specified control word into the PE43711.
          *
          * Derived platform-specific implementations are responsible for
          * performing the actual SPI transaction required by the target
          * hardware.
          *
-         * @param controlWord PE4312 control word.
+         * @param controlWord PE43711 control word.
          *
          * @return Operation status.
          */
         Error ProgramControlWord(uint16_t controlWord) override = 0;
     };
 }
-
-#endif //CPPFIRMWAREEMBEDDED_PE4312_HPP
+#endif //CPPFIRMWAREEMBEDDED_PE43711_HPP

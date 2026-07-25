@@ -11,7 +11,7 @@ Description : AD9361RxAttenuator.cpp
 
 namespace rf
 {
-    AD9361RxAttenuator::AD9361RxAttenuator(IAd9361RxChannel& channel): channel(channel)
+    AD9361RxAttenuator::AD9361RxAttenuator(IAd9361RxGainControl& channel): channel(channel)
     {
     }
 
@@ -94,4 +94,4 @@ namespace rf
 
         return Apply();
     }
-} // namespace rf
+}

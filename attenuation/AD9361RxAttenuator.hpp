@@ -75,11 +75,11 @@ used by the underlying platform.
 
 namespace rf
 {
-    class IAd9361RxChannel
+    class IAd9361RxGainControl
     {
     public:
 
-        virtual ~IAd9361RxChannel() = default;
+        virtual ~IAd9361RxGainControl() = default;
 
         /**
          * Programs the receive attenuation of the AD9361 RX channel.
@@ -123,7 +123,7 @@ namespace rf
          *
          * @param channel AD9361 receive channel implementation.
          */
-        explicit AD9361RxAttenuator(IAd9361RxChannel& channel);
+        explicit AD9361RxAttenuator(IAd9361RxGainControl& channel);
 
         /**
          * Returns a human-readable device name.
@@ -206,7 +206,7 @@ namespace rf
 
     private:
 
-        IAd9361RxChannel& channel;
+        IAd9361RxGainControl& channel;
 
         /// Attenuation currently programmed into the hardware.
         double appliedAttenuation = 0.0;

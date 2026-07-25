@@ -18,6 +18,12 @@ add_executable(${PROJECT_NAME}
         PE4312.cpp
         AD9361RxAttenuator.hpp
         AD9361RxAttenuator.cpp
+        DigitalStepAttenuator.hpp
+        DigitalStepAttenuator.cpp
+        PE43711.hpp
+        PE43711.cpp
+        HMC624.hpp
+        HMC624.cpp
 )
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
