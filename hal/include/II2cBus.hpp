@@ -19,25 +19,38 @@ namespace hal
 
     /**
      * Abstract I2C bus interface.
-     * This interface provides hardware-independent access to I2C communication.
      *
-     * I2C is commonly used in embedded and RF systems for configuring
-     * low-speed peripheral devices.
+     * Provides a platform-independent interface for communicating with
+     * devices connected to an Inter-Integrated Circuit (I2C) bus.
      *
-     * Typical devices connected through I2C:
-     *   - Temperature sensors
-     *   - EEPROM memory
-     *   - Clock generators
-     *   - Power management ICs
-     *   - RF monitoring devices
+     * This interface represents the transport layer only and intentionally
+     * contains no knowledge about the protocol implemented by individual
+     * devices connected to the bus.
      *
-     * The interface hides the underlying hardware implementation.
+     * Typical devices connected over I2C include:
+     *     • EEPROM memories
+     *     • Temperature sensors
+     *     • Real-Time Clocks (RTC)
+     *     • GPIO expanders
+     *     • Power monitors
+     *     • ADCs
+     *     • DACs
+     *     • Clock generators
+     *     • PMICs
+     *     • RF front-end devices
      *
-     * Possible implementations:
-     *   - Linux i2c-dev driver
-     *   - STM32 HAL I2C
-     *   - Zephyr I2C driver
-     *   - FPGA I2C controller
+     * Implementations may use:
+     *     • Linux i2c-dev
+     *     • STM32 HAL
+     *     • Zephyr drivers
+     *     • Bare-metal drivers
+     *     • FPGA controllers
+     *     • USB-to-I2C adapters
+     *
+     * The interface supports:
+     *     • Write transactions
+     *     • Read transactions
+     *     • Combined write/read transactions using a repeated START
      */
     struct II2cBus
     {
@@ -45,23 +58,17 @@ namespace hal
 
         /**
          * Writes data to an I2C slave device.
-         * The transaction consists of:
-         *   START
-         *       |
-         *   Slave address + WRITE
-         *       |
-         *   Data bytes
-         *       |
-         *   STOP
+         * A complete I2C write transaction is performed.
          *
-         * Example:
-         * Writing register 0x10:
-         *   Address: 0x60
-         *   Data:
-         *       [0x10][0x55]
+         * Typical transaction:
+         *
+         *     START
+         *     Address + Write
+         *     Data...
+         *     STOP
          *
          * @param address 7-bit I2C slave address.
-         * @param data Buffer containing data to transmit.
+         * @param data Pointer to the transmit buffer.
          * @param size Number of bytes to transmit.
          * @return Operation status.
          */
@@ -71,18 +78,17 @@ namespace hal
 
         /**
          * Reads data from an I2C slave device.
-         * The transaction consists of:
-         *   START
-         *       |
-         *   Slave address + READ
-         *       |
-         *   Receive data
-         *       |
-         *   STOP
+         * A complete I2C read transaction is performed.
+         *
+         * Typical transaction:
+         *     START
+         *     Address + Read
+         *     Data...
+         *     STOP
          *
          * @param address 7-bit I2C slave address.
-         * @param data Buffer for received data.
-         * @param size Number of bytes to receive.
+         * @param data Pointer to the receive buffer.
+         * @param size Number of bytes to read.
          * @return Operation status.
          */
         virtual Error read(uint8_t address,
@@ -90,64 +96,39 @@ namespace hal
                            uint32_t size) = 0;
 
         /**
-         * Writes register address and then reads data.
-         * Many embedded devices use a register-based protocol:
-         * Example:
-         *   Write:
-         *       Register address = 0x20
-         *   Read:
-         *       Return register value
+         * Performs a combined write/read transaction without releasing the
+         * I2C bus between the write and read phases.
          *
-         * This method performs a repeated-start transaction when supported.
+         * This operation uses a repeated START condition and is commonly
+         * used to access registers inside I2C devices.
          *
-         * @param address 7-bit I2C slave address.
-         * @param registerAddress Device register address.
-         * @param data Buffer for received data.
-         * @param size Number of bytes to receive.
-         * @return Operation status.
-         */
-        virtual Error readRegister(uint8_t address,
-                                   uint8_t registerAddress,
-                                   uint8_t* data,
-                                   uint32_t size) = 0;
-
-        /**
-         * Writes a value into a device register.
-         * Commonly used by configuration drivers.
-         * Example:
-         *   PLL register 0x05 = 0x1234
+         * Typical transaction:
+         *     START
+         *     Address + Write
+         *     Write data...
+         *     REPEATED START
+         *     Address + Read
+         *     Read data...
+         *     STOP
+         *
+         * The transmitted data may contain:
+         *     • Register address
+         *     • Command
+         *     • Memory address
+         *     • Device-specific request
          *
          * @param address 7-bit I2C slave address.
-         * @param registerAddress Device register address.
-         * @param value Value to write.
+         * @param txData Pointer to transmit buffer.
+         * @param txSize Number of bytes to transmit.
+         * @param rxData Pointer to receive buffer.
+         * @param rxSize Number of bytes to receive.
          * @return Operation status.
          */
-        virtual Error writeRegister(uint8_t address,
-                                    uint8_t registerAddress,
-                                    uint8_t value) = 0;
-
-        /**
-         * Changes I2C clock frequency.
-         *
-         * Common frequencies:
-         *   Standard mode:
-         *       100 kHz
-         *   Fast mode:
-         *       400 kHz
-         *   Fast mode plus:
-         *       1 MHz
-         *
-         * @param frequencyHz Desired bus frequency.
-         * @return Operation status.
-         */
-        virtual Error setFrequency(uint32_t frequencyHz) = 0;
-
-        /**
-         * Returns current I2C clock frequency.
-         * @return Frequency in Hz.
-         */
-        [[nodiscard]]
-        virtual uint32_t getFrequency() const = 0;
+        virtual Error transfer(uint8_t address,
+                               const uint8_t* txData,
+                               uint32_t txSize,
+                               uint8_t* rxData,
+                               uint32_t rxSize) = 0;
     };
 }
 

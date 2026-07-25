@@ -52,8 +52,7 @@ namespace hal
          * Example:
          *   uint64_t start = timer.GetTicks();
          *   operation();
-         *   uint64_t elapsed =
-         *       timer.GetTicks() - start;
+         *   uint64_t elapsed = timer.GetTicks() - start;
          *
          * @return Current timer tick value.
          */

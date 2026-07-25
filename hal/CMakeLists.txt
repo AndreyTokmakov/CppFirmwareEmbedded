@@ -21,6 +21,10 @@ add_executable(${PROJECT_NAME}
         include/IPwm.hpp
         linux/LinuxSpiBus.cpp
         linux/LinuxGpio.cpp
+        linux/LinuxUart.hpp
+        linux/LinuxUart.cpp
+        linux/LinuxI2cBus.hpp
+        linux/LinuxI2cBus.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/common")

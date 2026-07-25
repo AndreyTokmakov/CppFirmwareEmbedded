@@ -65,7 +65,7 @@ namespace hal
          * @param received Actual number of bytes received.
          * @return Operation status.
          */
-        virtual Error Read(uint8_t* data,
+        virtual Error read(uint8_t* data,
                            uint32_t size,
                            uint32_t& received) = 0;
 
