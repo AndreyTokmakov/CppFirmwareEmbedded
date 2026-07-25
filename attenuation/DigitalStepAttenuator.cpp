@@ -9,7 +9,7 @@ Description : DigitalStepAttenuator.cpp
 
 #include "DigitalStepAttenuator.hpp"
 
-namespace rf
+namespace attenuation
 {
     DigitalStepAttenuator::DigitalStepAttenuator(const double minimumAttenuation,
                                                  const double maximumAttenuation,

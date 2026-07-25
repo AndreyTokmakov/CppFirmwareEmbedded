@@ -4,12 +4,11 @@ Created on  :
 Author      : Andrei Tokmakov
 Version     : 1.0
 Copyright   : Your copyright notice
-Description : Attenuators
+Description :
 ============================================================================**/
 
 #include <string_view>
 #include <vector>
-#include "IAttenuator.hpp"
 
 
 int main([[maybe_unused]] const int argc,
@@ -19,3 +18,4 @@ int main([[maybe_unused]] const int argc,
 
     return EXIT_SUCCESS;
 }
+

@@ -15,7 +15,7 @@ Description : AttenuatorBase.hpp
 
 #include "IAttenuator.hpp"
 
-namespace rf
+namespace attenuation
 {   /**
      * @brief Base implementation shared by most attenuators.
      *

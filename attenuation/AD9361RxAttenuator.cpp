@@ -9,7 +9,7 @@ Description : AD9361RxAttenuator.cpp
 
 #include "AD9361RxAttenuator.hpp"
 
-namespace rf
+namespace attenuation
 {
     AD9361RxAttenuator::AD9361RxAttenuator(IAd9361RxGainControl& channel): channel(channel)
     {

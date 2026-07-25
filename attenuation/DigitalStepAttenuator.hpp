@@ -14,7 +14,7 @@ Description : DigitalStepAttenuator.hpp
 
 #include "AttenuatorBase.hpp"
 
-namespace rf
+namespace attenuation
 {
     /**
      * Represents a programmable digital step attenuator.

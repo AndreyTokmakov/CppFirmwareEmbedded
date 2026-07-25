@@ -14,8 +14,11 @@ Description : IAttenuator.hpp
 
 #include "Error.hpp"
 
-namespace rf
-{   /**
+namespace attenuation
+{
+    using common::Error;
+
+    /**
      * @brief Generic interface for RF attenuators.
      * This interface abstracts fixed, programmable and integrated attenuators behind a common API.
      */

@@ -8,9 +8,8 @@ Description : HMC624.cpp
 ============================================================================**/
 
 #include "HMC624.hpp"
-#include "HMC624.hpp"
 
-namespace rf
+namespace attenuation
 {
     namespace
     {
@@ -19,12 +18,7 @@ namespace rf
         constexpr double kStepSize = 0.5;
     }
 
-    HMC624::HMC624()
-        : DigitalStepAttenuator(
-              kMinimumAttenuation,
-              kMaximumAttenuation,
-              kStepSize)
-    {
+    HMC624::HMC624(): DigitalStepAttenuator(kMinimumAttenuation, kMaximumAttenuation, kStepSize){
     }
 
     std::string HMC624::GetName() const

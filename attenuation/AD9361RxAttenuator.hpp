@@ -73,7 +73,7 @@ IAttenuator interface used by the application and the concrete AD9361 driver
 used by the underlying platform.
 **/
 
-namespace rf
+namespace attenuation
 {
     class IAd9361RxGainControl
     {

@@ -12,7 +12,7 @@ Description : FixedAttenuator.hpp
 
 #include "AttenuatorBase.hpp"
 
-namespace rf
+namespace attenuation
 {   /**
      * Represents a fixed RF attenuator.
      *

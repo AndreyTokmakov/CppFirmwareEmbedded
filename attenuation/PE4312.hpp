@@ -14,7 +14,7 @@ Description : PE4312.hpp
 
 #include "DigitalStepAttenuator.hpp"
 
-namespace rf
+namespace attenuation
 {
     /**
      * Represents the pSemi PE4312 digital step attenuator.

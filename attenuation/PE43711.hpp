@@ -12,7 +12,7 @@ Description : PE43711.hpp
 
 #include "DigitalStepAttenuator.hpp"
 
-namespace rf
+namespace attenuation
 {
     /**
      * Represents the pSemi PE43711 digital step attenuator.

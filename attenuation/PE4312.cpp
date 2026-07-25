@@ -9,8 +9,7 @@ Description : PE4312.cpp
 
 #include "PE4312.hpp"
 
-
-namespace rf
+namespace attenuation
 {
     namespace
     {

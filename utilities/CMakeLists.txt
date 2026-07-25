@@ -7,7 +7,7 @@ project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
 add_compile_options(-c -Wall -Wextra -O3 -std=c++26)
 
-add_library(utils
+add_library(utilities_lib
     StringUtilities.cpp
     FileUtilities.cpp
     Base64.cpp
@@ -24,7 +24,7 @@ add_executable(${PROJECT_NAME}
 )
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
-    utils
+    utilities_lib
     pthread
     ${EXTRA_LIBS}
 )

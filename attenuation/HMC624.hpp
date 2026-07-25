@@ -14,7 +14,7 @@ Description : HMC624.hpp
 
 #include "DigitalStepAttenuator.hpp"
 
-namespace rf
+namespace attenuation
 {
     /**
      * Represents the Analog Devices HMC624 digital step attenuator.

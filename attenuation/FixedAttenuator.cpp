@@ -9,7 +9,7 @@ Description : FixedAttenuator.cpp
 
 #include "FixedAttenuator.hpp"
 
-namespace rf
+namespace attenuation
 {
     FixedAttenuator::FixedAttenuator(const double attenuationDb) : attenuation(attenuationDb)
     {

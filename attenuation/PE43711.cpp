@@ -11,7 +11,7 @@ Description : PE43711.cpp
 
 #include "PE43711.hpp"
 
-namespace rf
+namespace attenuation
 {
     namespace
     {

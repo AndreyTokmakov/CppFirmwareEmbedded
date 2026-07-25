@@ -4,12 +4,11 @@ Created on  :
 Author      : Andrei Tokmakov
 Version     : 1.0
 Copyright   : Your copyright notice
-Description : Attenuators
+Description : Hardware Abstraction Layer (HAL) / Platform I/O.
 ============================================================================**/
 
 #include <string_view>
 #include <vector>
-#include "IAttenuator.hpp"
 
 
 int main([[maybe_unused]] const int argc,
@@ -17,5 +16,7 @@ int main([[maybe_unused]] const int argc,
 {
     const std::vector<std::string_view> args(argv + 1, argv + argc);
 
+
     return EXIT_SUCCESS;
 }
+
