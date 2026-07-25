@@ -35,7 +35,7 @@ namespace attenuation
         pendingAttenuation = QuantizeAttenuation(attenuationDb);
         configurationDirty = true;
 
-        return Error::None;
+        return Error::Success;
     }
 
     double AD9361RxAttenuator::GetAttenuation() const
@@ -62,7 +62,7 @@ namespace attenuation
     {
         if (!configurationDirty)
         {
-            return Error::None;
+            return Error::Success;
         }
 
         updateInProgress = true;
@@ -71,7 +71,7 @@ namespace attenuation
 
         updateInProgress = false;
 
-        if (error != Error::None)
+        if (error != Error::Success)
         {
             return error;
         }
@@ -79,7 +79,7 @@ namespace attenuation
         appliedAttenuation = pendingAttenuation;
         configurationDirty = false;
 
-        return Error::None;
+        return Error::Success;
     }
 
     bool AD9361RxAttenuator::IsBusy() const

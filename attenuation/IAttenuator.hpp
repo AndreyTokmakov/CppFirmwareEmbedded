@@ -155,7 +155,7 @@ namespace attenuation
          * Some implementations defer hardware access until Apply() is called, allowing
          * multiple parameters to be updated as a single transaction.
          *
-         * Devices that update immediately may simply return Error::None.
+         * Devices that update immediately may simply return Error::Success.
          */
         virtual Error Apply() = 0;
 

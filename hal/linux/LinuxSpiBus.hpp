@@ -52,9 +52,7 @@ namespace hal
 
         /**
          * Creates Linux SPI bus instance.
-         *
          * Opens the specified spidev device and configuresinitial SPI parameters.
-         *
          * @param device SPI device path.
          *
          * Example:
@@ -73,7 +71,7 @@ namespace hal
          * Usually:
          *     8 bits
          */
-        explicit LinuxSpiBus(const std::string& device,
+        explicit LinuxSpiBus(std::string  device,
                              uint32_t frequencyHz = 1000000,
                              uint8_t mode = 0,
                              uint8_t bitsPerWord = 8);
@@ -102,26 +100,26 @@ namespace hal
         /**
          * Changes SPI clock frequency.
          * The new value is applied immediately.
-         * @param frequencyHz New SPI frequency.
+         * @param frequency New SPI frequency.
          * @return Operation status.
          */
-        Error setFrequency(uint32_t frequencyHz) override;
+        Error setFrequency(uint32_t frequency) override;
 
         /**
          * Returns current SPI clock frequency.
          * @return SPI frequency in Hz.
          */
         [[nodiscard]]
-        uint32_t getFrequency() const override;
+        uint32_t getFrequency() const noexcept override;
 
         /**
          * Changes SPI mode.
-         * @param mode SPI mode:
+         * @param spiMode SPI mode:
          *     0..3
          *
          * @return Operation status.
          */
-        Error setMode(uint8_t mode);
+        Error setMode(uint8_t spiMode);
 
         /**
          * Returns current SPI mode.
@@ -129,8 +127,7 @@ namespace hal
          * @return SPI mode.
          */
         [[nodiscard]]
-        uint8_t getMode() const;
-
+        uint8_t getMode() const noexcept;
 
         /**
          * Changes number of bits transferred per word.
@@ -138,17 +135,17 @@ namespace hal
          *     8
          *     16
          *
-         * @param bitsPerWord Number of bits.
+         * @param bits Number of bits.
          * @return Operation status.
          */
-        Error setBitsPerWord(uint8_t bitsPerWord);
+        Error setBitsPerWord(uint8_t bits);
 
         /**
          * Returns current bits per word configuration.
          * @return Number of bits.
          */
         [[nodiscard]]
-        uint8_t getBitsPerWord() const;
+        uint8_t getBitsPerWord() const noexcept;
 
         /**
          * Returns true if SPI device was successfully opened.
@@ -156,7 +153,7 @@ namespace hal
          * @return Device state.
          */
         [[nodiscard]]
-        bool isOpen() const;
+        bool isOpen() const noexcept;
 
     private:
 

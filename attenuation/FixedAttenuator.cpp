@@ -52,6 +52,6 @@ namespace attenuation
 
     Error FixedAttenuator::Reset()
     {
-        return Error::None;
+        return Error::Success;
     }
 }

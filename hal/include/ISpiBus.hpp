@@ -87,7 +87,7 @@ namespace hal
          * @return SPI frequency in Hz.
          */
         [[nodiscard]]
-        virtual uint32_t getFrequency() const = 0;
+        virtual uint32_t getFrequency() const noexcept = 0;
     };
 
 } // namespace hal

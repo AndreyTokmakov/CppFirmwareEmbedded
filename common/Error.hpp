@@ -11,6 +11,7 @@ Description : Error.hpp
 #define CPPFIRMWAREEMBEDDED_ERROR_HPP
 
 #include <cstdint>
+#include <string_view>
 
 namespace common
 {
@@ -22,18 +23,16 @@ namespace common
         /**
          * Operation completed successfully.
          */
-        None = 0,
+        Success = 0,
 
         /**
          * Requested operation is not supported by the device.
          *
          * Example:
          * Fixed attenuator:
-         *     SetAttenuation()
-         * is not supported.
+         *     SetAttenuation() is not supported.
          */
         NotSupported,
-
 
         /**
          * Invalid parameter was provided.
@@ -50,8 +49,7 @@ namespace common
          *
          * Examples:
          *   PE4312:
-         *       SetAttenuation(50.0)
-         *   while maximum attenuation is 31.5 dB.
+         *       SetAttenuation(50.0) while maximum attenuation is 31.5 dB.
          */
         OutOfRange,
 
@@ -119,6 +117,18 @@ namespace common
         ResourceUnavailable
     };
 
+    /**
+     * Converts Error value into human-readable string.
+     * This helper is useful for logging and debugging.
+     *
+     * Example:
+     *     std::cout << toString(Error::Timeout);
+     *
+     * @param error Error value.
+     * @return Text representation of the error.
+     */
+    [[nodiscard]]
+    constexpr std::string_view toString(const Error error);
 }
 
 #endif //CPPFIRMWAREEMBEDDED_ERROR_HPP

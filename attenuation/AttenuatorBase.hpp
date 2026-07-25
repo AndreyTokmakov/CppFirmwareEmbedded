@@ -29,13 +29,13 @@ namespace attenuation
         Error Enable() override
         {
             enabled = true;
-            return Error::None;
+            return Error::Success;
         }
 
         Error Disable() override
         {
             enabled = false;
-            return Error::None;
+            return Error::Success;
         }
 
         [[nodiscard]]
@@ -46,7 +46,7 @@ namespace attenuation
 
         Error Apply() override
         {
-            return Error::None;
+            return Error::Success;
         }
 
         [[nodiscard]]

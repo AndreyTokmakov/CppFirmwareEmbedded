@@ -20,6 +20,7 @@ add_executable(${PROJECT_NAME}
         include/IClock.hpp
         include/IPwm.hpp
         linux/LinuxSpiBus.cpp
+        linux/LinuxGpio.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/common")
@@ -34,5 +35,6 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
         common_lib
         # utilities_lib
         pthread
+        gpiod
         ${EXTRA_LIBS}
 )
