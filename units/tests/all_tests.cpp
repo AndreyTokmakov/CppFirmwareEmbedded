@@ -13,6 +13,7 @@ Description :
 
 void frequency_test();
 void voltage_test();
+void temperature_test();
 
 
 int main([[maybe_unused]] const int argc,
@@ -22,6 +23,7 @@ int main([[maybe_unused]] const int argc,
 
     frequency_test();
     voltage_test();
+    temperature_test();
 
     return EXIT_SUCCESS;
 }

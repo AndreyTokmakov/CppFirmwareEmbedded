@@ -1,32 +1,12 @@
-#include <cmath>
-#include <cstdlib>
+
 #include <iostream>
 
+#include "asserts.hpp"
 #include <voltage.hpp>
 
 using namespace units;
 using namespace units::literals;
 
-
-#define ASSERT_TRUE(expression)                                                \
-    do                                                                         \
-    {                                                                          \
-        if (!(expression))                                                     \
-        {                                                                      \
-            std::cerr                                                          \
-                << "Assertion failed: " << #expression << '\n'                 \
-                << "File: " << __FILE__ << '\n'                                \
-                << "Line: " << __LINE__ << std::endl;                          \
-            std::terminate();                                                  \
-        }                                                                      \
-    } while (false)
-
-#define ASSERT_FALSE(expression) ASSERT_TRUE(!(expression))
-
-#define ASSERT_EQ(lhs, rhs) ASSERT_TRUE((lhs) == (rhs))
-
-#define ASSERT_NEAR(lhs, rhs, epsilon)                                         \
-    ASSERT_TRUE(std::abs((lhs) - (rhs)) <= (epsilon))
 
 namespace
 {

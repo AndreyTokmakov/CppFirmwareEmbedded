@@ -11,6 +11,7 @@ add_executable(${PROJECT_NAME}
     all_tests.cpp
     frequency_test.cpp
     voltage_test.cpp
+    temperature_test.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${INCLUDE_DIR}")

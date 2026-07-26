@@ -14,6 +14,7 @@ add_executable(${PROJECT_NAME}
     include/frequency.hpp
     include/constants.hpp
     include/voltage.hpp
+    include/temperature.hpp
 )
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
