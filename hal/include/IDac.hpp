@@ -28,8 +28,8 @@ namespace hal
      *   - VGA gain control
      *   - PLL tuning voltage
      *   - Analog calibration
-     * Possible implementations:
      *
+     * Possible implementations:
      *   - MCU internal DAC
      *   - SPI DAC
      *   - FPGA DAC controller

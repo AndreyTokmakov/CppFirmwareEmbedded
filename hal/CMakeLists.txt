@@ -25,6 +25,8 @@ add_executable(${PROJECT_NAME}
         linux/LinuxUart.cpp
         linux/LinuxI2cBus.hpp
         linux/LinuxI2cBus.cpp
+        linux/LinuxPwm.cpp
+        linux/LinuxPwm.hpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/common")
