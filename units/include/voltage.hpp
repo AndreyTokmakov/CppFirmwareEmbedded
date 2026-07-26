@@ -150,27 +150,27 @@ namespace units
 
         [[nodiscard]]
         constexpr ValueType volts() const noexcept {
-            return nativeValue();
+            return getValue();
         }
 
         [[nodiscard]]
         constexpr ValueType milliVolts() const noexcept {
-            return nativeValue() / VOLTS_PER_MILLIVOLT;
+            return getValue() / VOLTS_PER_MILLIVOLT;
         }
 
         [[nodiscard]]
         constexpr ValueType microVolts() const noexcept {
-            return nativeValue() / VOLTS_PER_MICROVOLT;
+            return getValue() / VOLTS_PER_MICROVOLT;
         }
 
         [[nodiscard]]
         constexpr ValueType nanoVolts() const noexcept {
-            return nativeValue() / VOLTS_PER_NANOVOLT;
+            return getValue() / VOLTS_PER_NANOVOLT;
         }
 
         [[nodiscard]]
         constexpr ValueType kiloVolts() const noexcept {
-            return nativeValue() / VOLTS_PER_KILOVOLT;
+            return getValue() / VOLTS_PER_KILOVOLT;
         }
 
     private:

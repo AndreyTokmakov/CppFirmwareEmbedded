@@ -152,17 +152,17 @@ namespace units
 
         [[nodiscard]]
         constexpr ValueType kelvin() const noexcept {
-            return nativeValue();
+            return getValue();
         }
 
         [[nodiscard]]
         constexpr ValueType celsius() const noexcept {
-            return nativeValue();
+            return getValue();
         }
 
         [[nodiscard]]
         constexpr ValueType fahrenheit() const noexcept {
-            return nativeValue() / FAHRENHEIT_TO_KELVIN_SCALE;
+            return getValue() / FAHRENHEIT_TO_KELVIN_SCALE;
         }
 
     private:
@@ -207,86 +207,85 @@ namespace units
 
         [[nodiscard]]
         constexpr ValueType kelvin() const noexcept {
-            return value_;
+            return value;
         }
 
         [[nodiscard]]
         constexpr ValueType celsius() const noexcept {
-            return value_ - CELSIUS_OFFSET;
+            return value - CELSIUS_OFFSET;
         }
 
         [[nodiscard]]
         constexpr ValueType fahrenheit() const noexcept {
-            return value_ / FAHRENHEIT_SCALE - FAHRENHEIT_OFFSET;
+            return value / FAHRENHEIT_SCALE - FAHRENHEIT_OFFSET;
         }
 
         [[nodiscard]]
         constexpr bool isZero() const noexcept {
-            return value_ == 0.0;
+            return value == 0.0;
         }
 
         [[nodiscard]]
         constexpr bool isPositive() const noexcept {
-            return value_ > 0.0;
+            return value > 0.0;
         }
 
         [[nodiscard]]
         constexpr bool isNegative() const noexcept {
-            return value_ < 0.0;
+            return value < 0.0;
         }
 
         constexpr Temperature& operator+=(const TemperatureDifference difference) noexcept
         {
-            value_ += difference.kelvin();
+            value += difference.kelvin();
             return *this;
         }
 
         constexpr Temperature& operator-=(const TemperatureDifference difference) noexcept
         {
-            value_ -= difference.kelvin();
+            value -= difference.kelvin();
             return *this;
         }
 
         [[nodiscard]]
         constexpr bool operator==(const Temperature& other) const noexcept {
-            return value_ == other.value_;
+            return value == other.value;
         }
 
         [[nodiscard]]
         constexpr bool operator!=(const Temperature& other) const noexcept {
-            return value_ != other.value_;
+            return value != other.value;
         }
 
         [[nodiscard]]
         constexpr bool operator<(const Temperature& other) const noexcept {
-            return value_ < other.value_;
+            return value < other.value;
         }
 
         [[nodiscard]]
         constexpr bool operator<=(const Temperature& other) const noexcept {
-            return value_ <= other.value_;
+            return value <= other.value;
         }
 
         [[nodiscard]]
         constexpr bool operator>(const Temperature& other) const noexcept {
-            return value_ > other.value_;
+            return value > other.value;
         }
 
         [[nodiscard]]
         constexpr bool operator>=(const Temperature& other) const noexcept {
-            return value_ >= other.value_;
+            return value >= other.value;
         }
 
     private:
 
-        constexpr explicit Temperature(const ValueType value) noexcept
-            : value_(value)
+        constexpr explicit Temperature(const ValueType value) noexcept : value(value)
         {
         }
 
     private:
 
-        ValueType value_ {};
+        ValueType value {};
     };
 
     [[nodiscard]]

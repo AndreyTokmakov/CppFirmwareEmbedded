@@ -116,11 +116,6 @@ namespace units::detail
     public:
 
         [[nodiscard]]
-        constexpr ValueType getValue() const noexcept {
-            return value;
-        }
-
-        [[nodiscard]]
         constexpr bool isZero() const noexcept {
             return value == ValueType {};
         }
@@ -189,7 +184,7 @@ namespace units::detail
     protected:
 
         [[nodiscard]]
-        constexpr ValueType nativeValue() const noexcept {
+        constexpr ValueType getValue() const noexcept {
             return value;
         }
 

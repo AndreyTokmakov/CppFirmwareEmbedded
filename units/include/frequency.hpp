@@ -164,22 +164,22 @@ namespace units
 
         [[nodiscard]]
         constexpr ValueType hz() const noexcept {
-            return nativeValue();
+            return getValue();
         }
 
         [[nodiscard]]
         constexpr ValueType kHz() const noexcept {
-            return nativeValue() / HZ_PER_KHZ;
+            return getValue() / HZ_PER_KHZ;
         }
 
         [[nodiscard]]
         constexpr ValueType MHz() const noexcept {
-            return nativeValue() / HZ_PER_MHZ;
+            return getValue() / HZ_PER_MHZ;
         }
 
         [[nodiscard]]
         constexpr ValueType GHz() const noexcept {
-            return nativeValue() / HZ_PER_GHZ;
+            return getValue() / HZ_PER_GHZ;
         }
 #if 0
     public:
