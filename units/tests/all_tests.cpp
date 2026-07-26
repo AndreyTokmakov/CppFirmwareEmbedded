@@ -1,6 +1,6 @@
 /**============================================================================
 Name        : main.cpp
-Created on  : 
+Created on  :
 Author      : Andrei Tokmakov
 Version     : 1.0
 Copyright   : Your copyright notice
@@ -11,14 +11,17 @@ Description :
 #include <string_view>
 #include <vector>
 
+void frequency_test();
+void voltage_test();
 
-#include "include/frequency.hpp"
 
 int main([[maybe_unused]] const int argc,
          [[maybe_unused]] char** argv)
 {
     const std::vector<std::string_view> args(argv + 1, argv + argc);
 
+    frequency_test();
+    voltage_test();
 
     return EXIT_SUCCESS;
 }
