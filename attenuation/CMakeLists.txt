@@ -13,16 +13,21 @@ add_executable(${PROJECT_NAME}
         AttenuatorBase.hpp
         FixedAttenuator.hpp
         FixedAttenuator.cpp
-        PE4312.hpp
-        PE4312.cpp
-        AD9361RxAttenuator.hpp
-        AD9361RxAttenuator.cpp
         DigitalStepAttenuator.hpp
         DigitalStepAttenuator.cpp
-        PE43711.hpp
-        PE43711.cpp
+        SpiAttenuator.hpp
+        SpiAttenuator.cpp
+        ParallelAttenuator.hpp
+        ParallelAttenuator.cpp
+
         HMC624.hpp
         HMC624.cpp
+        # PE4312.hpp
+        # PE4312.cpp
+        # PE43711.hpp
+        # PE43711.cpp
+        # AD9361RxAttenuator.hpp
+        # AD9361RxAttenuator.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/common")

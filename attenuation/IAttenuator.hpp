@@ -19,166 +19,169 @@ namespace attenuation
     using common::Error;
 
     /**
-     * @brief Generic interface for RF attenuators.
-     * This interface abstracts fixed, programmable and integrated attenuators behind a common API.
+     * Common interface for RF attenuators.
+     *
+     * Overview
+     * --------
+     *
+     * An RF attenuator reduces the amplitude of an RF signal by a specified amount
+     * without intentionally introducing distortion. Attenuators are widely used in
+     * RF receivers, transmitters, measurement equipment and automated test systems
+     * to control signal levels, protect sensitive circuits and improve measurement
+     * repeatability.
+     *
+     * This interface provides a hardware-independent abstraction for attenuation
+     * control. Higher software layers interact only with this interface and remain
+     * independent of the underlying hardware implementation.
+     *
+     * The interface supports both fixed and programmable attenuators.
+     *
+     * Fixed attenuators provide a constant attenuation determined entirely by the
+     * hardware. Their attenuation cannot be modified after construction.
+     *
+     * Programmable attenuators allow the attenuation level to be changed through
+     * a hardware interface such as SPI, I²C, GPIO or an integrated RF transceiver
+     * register set.
+     *
+     * Scope
+     * -----
+     *
+     * This interface is intentionally limited to attenuation control only.
+     *
+     * Operations such as enabling or disabling an RF signal path, bypassing the
+     * attenuator, resetting hardware, waiting for asynchronous completion or
+     * applying deferred configuration are not common to all attenuator devices.
+     * Such functionality should be exposed through dedicated interfaces when
+     * required by a particular hardware platform.
+     *
+     * Typical implementations
+     * -----------------------
+     *
+     *     FixedAttenuator
+     *     DigitalStepAttenuator
+     *         ├── PE4312
+     *         ├── PE43711
+     *         └── HMC624
+     *
+     *     AD9361RxAttenuator
+     *
+     * Thread Safety
+     * -------------
+     *
+     * Implementations are not required to be thread-safe. If an attenuator is
+     * accessed concurrently from multiple threads, synchronization must be
+     * provided by the caller.
      */
-     struct IAttenuator
+    struct IAttenuator
     {
         virtual ~IAttenuator() = default;
 
         /**
          * Returns a human-readable device name.
          *
-         * The returned string is intended for logging, diagnostics, user interfaces
-         * and debugging. It should uniquely identify the attenuator model whenever possible.
+         * The returned string should uniquely identify the attenuator model and
+         * may be used for logging, diagnostics and user interfaces.
+         *
+         * @return Device name.
          */
         [[nodiscard]]
-        virtual std::string GetName() const = 0;
+        virtual std::string getName() const = 0;
 
         /**
-         * Indicates whether the attenuation level can be modified during runtime.
+         * Returns whether the attenuation level can be modified.
          *
-         * Returns false for fixed attenuators whose attenuation is permanently defined
-         * by the hardware.
+         * Fixed attenuators always return false. Programmable attenuators return
+         * true.
+         *
+         * @return True if attenuation can be changed.
          */
         [[nodiscard]]
-        virtual bool IsProgrammable() const = 0;
+        virtual bool isProgrammable() const = 0;
 
         /**
-         * Requests a new attenuation value expressed in decibels.
+         * Requests a new attenuation level.
          *
-         * The implementation may either apply the value immediately or cache it until
-         * Apply() is called, depending on the device.
+         * Programmable attenuators configure the hardware to achieve the requested
+         * attenuation. Fixed attenuators typically return Error::NotSupported.
          *
-         * The requested value must be validated against the supported attenuation range
-         * and hardware resolution.
+         * The requested value may be rounded to the nearest supported attenuation
+         * step depending on the hardware capabilities.
          *
-         * @param attenuationDb Desired attenuation in dB.
+         * @param attenuationDb Desired attenuation in decibels.
          *
          * @return Operation status.
          */
-        virtual Error SetAttenuation(double attenuationDb) = 0;
+        virtual Error setAttenuation(double attenuationDb) = 0;
 
         /**
-         * Returns the attenuation currently configured by the device.
+         * Returns the currently configured attenuation.
          *
-         * The returned value represents the active attenuation rather than the last
-         * value requested by SetAttenuation().
+         * For fixed attenuators this is the constant hardware attenuation.
+         * For programmable attenuators this is the attenuation currently configured
+         * by the device.
+         *
+         * @return Attenuation in decibels.
          */
         [[nodiscard]]
-        virtual double GetAttenuation() const = 0;
+        virtual double getAttenuation() const = 0;
 
         /**
          * Returns the minimum attenuation supported by the hardware.
          *
-         * Together with GetMaximumAttenuation(), this defines the valid operating
-         * range of the attenuator.
+         * @return Minimum attenuation in decibels.
          */
         [[nodiscard]]
-        virtual double GetMinimumAttenuation() const = 0;
+        virtual double getMinimumAttenuation() const = 0;
 
         /**
          * Returns the maximum attenuation supported by the hardware.
          *
-         * Any value above this limit shall be rejected by SetAttenuation().
+         * @return Maximum attenuation in decibels.
          */
         [[nodiscard]]
-        virtual double GetMaximumAttenuation() const = 0;
+        virtual double getMaximumAttenuation() const = 0;
 
         /**
-         * Returns the smallest attenuation increment supported by the hardware.
+         * Returns the attenuation resolution.
          *
-         * Programmable attenuators usually expose a fixed step size, while fixed
-         * attenuators typically return 0.0.
+         * Programmable attenuators usually return their hardware step size
+         * (for example 0.25 dB, 0.5 dB or 1.0 dB). Fixed attenuators return 0.0.
+         *
+         * @return Minimum programmable attenuation increment in decibels.
          */
         [[nodiscard]]
-        virtual double GetStepSize() const = 0;
+        virtual double getStepSize() const = 0;
 
         /**
-         * Checks whether a given attenuation value is supported.
+         * Determines whether the specified attenuation can be represented by the
+         * hardware.
          *
-         * This function performs validation only and must not modify the hardware
-         * state or any internal configuration.
+         * The method performs validation only and must not modify the hardware
+         * state.
          *
-         * @param attenuationDb Attenuation value to validate.
+         * @param attenuationDb Requested attenuation in decibels.
          *
-         * @return True if the value can be represented by the device.
+         * @return True if the attenuation is supported.
          */
         [[nodiscard]]
-        virtual bool IsValidAttenuation(double attenuationDb) const = 0;
+        virtual bool isValidAttenuation(double attenuationDb) const = 0;
 
         /**
-         * Converts an arbitrary attenuation value into the closest value representable
-         * by the hardware.
+         * Returns the closest attenuation supported by the hardware.
          *
-         * For example, a device supporting 0.5 dB resolution may quantize 12.37 dB
-         * to 12.5 dB.
+         * Values outside the supported range are clamped to the nearest valid
+         * limit. Values between hardware steps are rounded according to the
+         * device resolution.
          *
-         * @param attenuationDb Requested attenuation.
+         * The hardware state is not modified.
          *
-         * @return Nearest supported attenuation value.
+         * @param attenuationDb Requested attenuation in decibels.
+         *
+         * @return Closest representable attenuation.
          */
         [[nodiscard]]
-        virtual double QuantizeAttenuation(double attenuationDb) const = 0;
-
-        /**
-         * Enables the RF signal path.
-         *
-         * Some attenuators support enabling or disabling the RF path, while others
-         * may always remain enabled. Devices that do not implement this functionality
-         * should return Error::NotSupported.
-         */
-        virtual Error Enable() = 0;
-
-        /**
-         * Disables the RF signal path.
-         *
-         * When supported, the attenuator should isolate or mute the RF path according
-         * to the hardware capabilities.
-         *
-         * Devices that cannot disable the RF path should return Error::NotSupported.
-         */
-        virtual Error Disable() = 0;
-
-        /**
-         * Returns whether the RF signal path is currently enabled.
-         *
-         * For devices that do not support enabling or disabling, this function may
-         * always return true.
-         */
-        [[nodiscard]]
-        virtual bool IsEnabled() const = 0;
-
-        /**
-         * Applies any pending configuration changes to the hardware.
-         *
-         * Some implementations defer hardware access until Apply() is called, allowing
-         * multiple parameters to be updated as a single transaction.
-         *
-         * Devices that update immediately may simply return Error::Success.
-         */
-        virtual Error Apply() = 0;
-
-        /**
-         * Indicates whether the device is currently performing an internal update.
-         *
-         * This can be useful for asynchronous implementations or hardware requiring
-         * a finite settling time.
-         */
-        [[nodiscard]]
-        virtual bool IsBusy() const = 0;
-
-        /**
-         * Restores the device to its default operating state.
-         *
-         * The exact meaning of "default" depends on the hardware implementation, but
-         * typically includes restoring the default attenuation and clearing any
-         * pending configuration.
-         *
-         * @return Operation status.
-         */
-        virtual Error Reset() = 0;
+        virtual double quantizeAttenuation(double attenuationDb) const = 0;
     };
-}
+    }
 
 #endif //CPPFIRMWAREEMBEDDED_IATTENUATOR_HPP

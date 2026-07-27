@@ -12,78 +12,128 @@ Description : AttenuatorBase.hpp
 
 #include <algorithm>
 #include <cmath>
-
 #include "IAttenuator.hpp"
 
+/**
+  * Base implementation of the IAttenuator interface.
+  *
+  * Overview
+  * --------
+  *
+  * This class provides functionality shared by most RF attenuator implementations
+  * while remaining completely independent of any particular hardware.
+  *
+  * The primary purpose of this class is to eliminate duplicated code
+  * between different attenuator drivers.
+  *
+  * Implemented functionality
+  * -------------------------
+  *
+  * The base class provides generic implementations for:
+  *
+  *     • attenuation range validation
+  *     • attenuation quantization
+  *
+  * Both operations rely only on the minimum attenuation, maximum
+  * attenuation and attenuation step reported by the derived class.
+  *
+  * Hardware-specific operations such as changing attenuation, reading registers or
+  * communicating over SPI are intentionally left to the concrete implementations.
+  *
+  * Quantization
+  * ------------
+  *
+  * Programmable attenuators usually support only discrete attenuation values.
+  *
+  * Examples:
+  *     0.0
+  *     0.5
+  *     1.0
+  *     1.5
+  *     ...
+  * or
+  *     0.00
+  *     0.25
+  *     0.50
+  *     0.75
+  *     ...
+  *
+  * The quantizeAttenuation() function clamps the requested attenuation
+  * into the supported range and rounds it to the nearest supported step.
+  *
+  *
+  * Fixed Attenuators
+  * -----------------
+  * Fixed attenuators report a step size of 0.0.
+  *
+  * In this case the only valid attenuation is the fixed attenuation value itself,
+  * therefore quantizeAttenuation() simply returns the minimum supported attenuation.
+  *
+  * Thread Safety
+  * -------------
+  * This class contains no mutable shared state and performs no hardware
+  * access. Thread safety depends entirely on the derived implementation.
+  */
+
 namespace attenuation
-{   /**
-     * @brief Base implementation shared by most attenuators.
-     *
-     * Provides common implementations for device state management
-     * and attenuation validation.
-     */
+{
     class AttenuatorBase : public IAttenuator
     {
     public:
 
-        Error Enable() override
-        {
-            enabled = true;
-            return Error::Success;
-        }
-
-        Error Disable() override
-        {
-            enabled = false;
-            return Error::Success;
-        }
-
+        /**
+         * Determines whether the specified attenuation is supported.
+         *
+         * The value is considered valid when it lies within the supported
+         * attenuation range reported by the derived class.
+         *
+         * @param attenuationDb Attenuation to validate.
+         *
+         * @return True if the attenuation is within the supported range.
+         */
         [[nodiscard]]
-        bool IsEnabled() const override
+        bool isValidAttenuation(const double attenuationDb) const override
         {
-            return enabled;
+            return attenuationDb >= getMinimumAttenuation()
+                && attenuationDb <= getMaximumAttenuation();
         }
 
-        Error Apply() override
-        {
-            return Error::Success;
-        }
-
+        /**
+         * Returns the closest attenuation supported by the hardware.
+         *
+         * The requested value is first clamped into the supported range.
+         * If the attenuator has a programmable step size, the value is then
+         * rounded to the nearest supported attenuation level.
+         *
+         * Fixed attenuators report a step size of 0.0, therefore the only
+         * possible attenuation is the fixed hardware attenuation.
+         *
+         * The hardware state is not modified.
+         *
+         * @param attenuationDb Requested attenuation.
+         *
+         * @return Quantized attenuation.
+         */
         [[nodiscard]]
-        bool IsBusy() const override
+        double quantizeAttenuation(double attenuationDb) const override
         {
-            return false;
-        }
+            const double minimum = getMinimumAttenuation();
+            const double maximum = getMaximumAttenuation();
+            const double step = getStepSize();
 
-        [[nodiscard]]
-        bool IsValidAttenuation(const double attenuationDb) const override
-        {
-            return attenuationDb >= GetMinimumAttenuation() && attenuationDb <= GetMaximumAttenuation();
-        }
-
-        [[nodiscard]]
-        double QuantizeAttenuation(double attenuationDb) const override
-        {
-            const double min = GetMinimumAttenuation();
-            const double max = GetMaximumAttenuation();
-            const double step = GetStepSize();
-
-            attenuationDb = std::clamp(attenuationDb, min, max);
-            if (step == 0.0){
-                return min;
+            attenuationDb = std::clamp(attenuationDb, minimum, maximum);
+            if (step == 0.0) {
+                return minimum;
             }
 
-            return min + std::round((attenuationDb - min) / step) * step;
+            return minimum+ std::round((attenuationDb - minimum) / step) * step;
         }
 
     protected:
 
         ~AttenuatorBase() override = default;
-
-    private:
-
-        bool enabled = true;
     };
+
 }
 
 #endif //CPPFIRMWAREEMBEDDED_ATTENUATORBASE_HPP

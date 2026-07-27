@@ -10,6 +10,8 @@ add_compile_options(-c -Wall -O3 -std=c++26)
 add_library(common_lib
         Error.cpp
         Error.hpp
+        ISpiBus.hpp
+        IGpio.hpp
 )
 
 add_executable(${PROJECT_NAME}

@@ -9,49 +9,58 @@ Description : FixedAttenuator.cpp
 
 #include "FixedAttenuator.hpp"
 
+/******************************************************************************
+ *
+ *  FixedAttenuator.cpp
+ *
+ *  Implementation of a fixed RF attenuator.
+ *
+ *  Overview
+ *  --------
+ *
+ *  A fixed attenuator represents a passive RF component with a constant
+ *  attenuation value. Unlike programmable attenuators, the attenuation is
+ *  determined entirely by the hardware and cannot be modified during runtime.
+ *
+ *  Since the device contains no programmable logic, communication interface or
+ *  internal state, this implementation simply exposes the hardware properties
+ *  through the generic IAttenuator interface.
+ *
+ *  Calling setAttenuation() is not supported because the attenuation is fixed
+ *  at manufacturing time.
+ *
+ ******************************************************************************/
+
 namespace attenuation
 {
-    FixedAttenuator::FixedAttenuator(const double attenuationDb) : attenuation(attenuationDb)
-    {
+    FixedAttenuator::FixedAttenuator(const double attenuationDb): attenuation(attenuationDb){
     }
 
-    std::string FixedAttenuator::GetName() const
-    {
+    std::string FixedAttenuator::getName() const{
         return "Fixed Attenuator";
     }
 
-    bool FixedAttenuator::IsProgrammable() const
-    {
+    bool FixedAttenuator::isProgrammable() const {
         return false;
     }
 
-    Error FixedAttenuator::SetAttenuation(double)
-    {
+    Error FixedAttenuator::setAttenuation(double) {
         return Error::NotSupported;
     }
 
-    double FixedAttenuator::GetAttenuation() const
-    {
+    double FixedAttenuator::getAttenuation() const {
         return attenuation;
     }
 
-    double FixedAttenuator::GetMinimumAttenuation() const
-    {
+    double FixedAttenuator::getMinimumAttenuation() const {
         return attenuation;
     }
 
-    double FixedAttenuator::GetMaximumAttenuation() const
-    {
+    double FixedAttenuator::getMaximumAttenuation() const {
         return attenuation;
     }
 
-    double FixedAttenuator::GetStepSize() const
-    {
+    double FixedAttenuator::getStepSize() const {
         return 0.0;
-    }
-
-    Error FixedAttenuator::Reset()
-    {
-        return Error::Success;
     }
 }

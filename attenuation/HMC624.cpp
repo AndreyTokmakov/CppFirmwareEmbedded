@@ -8,52 +8,65 @@ Description : HMC624.cpp
 ============================================================================**/
 
 #include "HMC624.hpp"
+#include <string>
+
+
+/******************************************************************************
+ *
+ *  HMC624.cpp
+ *
+ *  Implementation of the Analog Devices HMC624 digital step attenuator.
+ *
+ *  Overview
+ *  --------
+ *
+ *  The HMC624 is a 6-bit parallel controlled RF digital step attenuator.
+ *
+ *  The device attenuation is selected by applying a binary control word to
+ *  six digital input pins.
+ *
+ *  This class implements only the device-specific behavior:
+ *
+ *      • attenuation range
+ *      • attenuation resolution
+ *      • attenuation encoding
+ *      • GPIO bit mapping
+ *
+ *  The generic GPIO update sequence is implemented by ParallelAttenuator.
+ *
+ ******************************************************************************/
 
 namespace attenuation
 {
-    namespace
-    {
-        constexpr double kMinimumAttenuation = 0.0;
-        constexpr double kMaximumAttenuation = 31.0;
-        constexpr double kStepSize = 0.5;
+    HMC624::HMC624(hal::IGpio& gpio): ParallelAttenuator(gpio){
     }
 
-    HMC624::HMC624(): DigitalStepAttenuator(kMinimumAttenuation, kMaximumAttenuation, kStepSize){
+    std::string HMC624::getName() const {
+        return "HMC624";
     }
 
-    std::string HMC624::GetName() const
-    {
-        return "Analog Devices HMC624";
+    double HMC624::getMinimumAttenuation() const {
+        return MinimumAttenuationDb;
     }
 
-    uint16_t HMC624::EncodeAttenuation(const double attenuationDb) const
-    {   /**
-         * Convert attenuation value into device steps.
-         * Example:
-         *  attenuationDb = 12.5
-         *  12.5 / 0.5 = 25
-         *  Binary:
-         *      25 = 0b011001
-        **/
-        return static_cast<uint16_t>(attenuationDb / GetStepSize());
+    double HMC624::getMaximumAttenuation() const {
+        return MaximumAttenuationDb;
     }
 
-    uint16_t HMC624::BuildControlWord(const uint16_t attenuationCode) const
-    {   /*
-         * HMC624 uses:
-         * Bit 0..5:
-         *   attenuation value
-         * Bit 6:
-         *   latch/update flag
-         *  Example:
-         *      attenuationCode = 0x15
-         *      Result:
-         *          0b010101
-         *      becomes:
-         *           0b010101 + control bit
-         */
-        constexpr uint16_t UpdateBit = 1 << 6;
-
-        return attenuationCode | UpdateBit;
+    double HMC624::getStepSize() const {
+        return StepSizeDb;
     }
-}
+
+    uint16_t HMC624::encodeAttenuation(const double attenuationDb) const{
+        return static_cast<uint16_t>(attenuationDb / StepSizeDb);
+    }
+
+    uint8_t HMC624::getBitCount() const {
+        return BitCount;
+    }
+
+    Error HMC624::writeBit(const uint8_t index, bool state){
+        return gpio.write(index, state);
+    }
+
+} // namespace attenuation
