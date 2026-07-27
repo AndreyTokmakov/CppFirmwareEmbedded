@@ -10,85 +10,184 @@ Description : PE43711.hpp
 #ifndef CPPFIRMWAREEMBEDDED_PE43711_HPP
 #define CPPFIRMWAREEMBEDDED_PE43711_HPP
 
-#include "DigitalStepAttenuator.hpp"
+#include "SpiAttenuator.hpp"
+
+
+/**
+ * Driver model for the pSemi PE43711 digital step attenuator.
+ *
+ * Overview
+ * --------
+ *
+ * The PE43711 is a high-linearity RF digital step attenuator controlled through
+ * a serial SPI-compatible interface.
+ *
+ * The device provides programmable attenuation from 0.0 dB to 31.75 dB with a
+ * resolution of 0.25 dB.
+ *
+ * The PE43711 is commonly used in:
+ *
+ *     • RF receivers
+ *     • RF transmitters
+ *     • Software defined radios
+ *     • Automatic gain control systems
+ *     • RF test and measurement equipment
+ *
+ *
+ * Device characteristics
+ * ----------------------
+ *
+ *     Attenuation range:
+ *         0.0 dB ... 31.75 dB
+ *
+ *     Resolution:
+ *         0.25 dB
+ *
+ *     Control interface:
+ *         SPI-compatible serial interface
+ *
+ *     Register width:
+ *         7 bits
+ *
+ *
+ * Architecture
+ * ------------
+ *
+ * PE43711 contains only the device-specific logic.
+ *
+ * SPI communication is implemented by SpiAttenuator:
+ *
+ *
+ *     PE43711
+ *        |
+ *        v
+ *     SpiAttenuator
+ *        |
+ *        v
+ *     ISpiBus
+ *
+ *
+ * PE43711 responsibilities:
+ *
+ *     • attenuation limits
+ *     • attenuation step size
+ *     • attenuation register encoding
+ *     • SPI transfer word formatting
+ *
+ *
+ * SpiAttenuator responsibilities:
+ *
+ *     • SPI transfer
+ *     • SPI bus access
+ *     • SPI configuration
+ *
+ *
+ * Register encoding
+ * -----------------
+ *
+ * The PE43711 uses a 7-bit attenuation register.
+ *
+ * Encoding:
+ *
+ *     attenuationCode = attenuation / 0.25
+ *
+ *
+ * Examples:
+ *
+ *     0.00 dB:
+ *         0000000
+ *
+ *     0.25 dB:
+ *         0000001
+ *
+ *     10.00 dB:
+ *         0101000
+ *
+ *     31.75 dB:
+ *         1111111
+ *
+ */
 
 namespace attenuation
 {
-    /**
-     * Represents the pSemi PE43711 digital step attenuator.
-     *
-     * The PE43711 is a digitally controlled RF step attenuator providing
-     * high-resolution attenuation control over a wide frequency range.
-     * The device is programmed through a serial interface using a 7-bit
-     * attenuation control code.
-     *
-     * Device characteristics:
-     *   - Attenuation range: 0.0 dB to 31.75 dB
-     *   - Resolution: 0.25 dB
-     *   - 7-bit attenuation code
-     *   - Low insertion loss
-     *   - High attenuation accuracy
-     *   - Broadband RF operation
-     *
-     * Typical applications:
-     *   - Software Defined Radio (SDR)
-     *   - RF front-end gain control
-     *   - Automatic Gain Control (AGC)
-     *   - Wireless communication systems
-     *   - Test and measurement equipment
-     *   - Radar systems
-     *
-     * This class implements only the PE43711-specific functionality.
-     * All common programmable attenuator logic, including attenuation
-     * validation, quantization, deferred configuration updates and state
-     * management, is implemented by DigitalStepAttenuator.
-     */
-    class PE43711 : public DigitalStepAttenuator
+    class PE43711 : public SpiAttenuator
     {
     public:
-
         /**
-         * Creates a new PE43711 driver instance.
+         * Creates a PE43711 attenuator driver.
+         * @param spi SPI bus used for communication.
          */
-        PE43711();
+        explicit PE43711(hal::ISpiBus& spi);
 
         /**
-         * Returns a human-readable device name.
-         *
-         * @return Device name.
+         * Returns device name.
+         * @return "PE43711".
          */
         [[nodiscard]]
-        std::string GetName() const override;
+        std::string getName() const override;
+
+        /**
+         * Returns minimum supported attenuation.
+         * @return 0.0 dB.
+         */
+        [[nodiscard]]
+        double getMinimumAttenuation() const override;
+
+        /**
+         * Returns maximum supported attenuation.
+         * @return 31.75 dB.
+         */
+        [[nodiscard]]
+        double getMaximumAttenuation() const override;
+
+        /**
+         * Returns attenuation step size.
+         * @return 0.25 dB.
+         */
+        [[nodiscard]]
+        double getStepSize() const override;
+
 
     protected:
 
         /**
-         * Encodes an attenuation value into the 7-bit attenuation code
-         * expected by the PE43711.
+         * Converts attenuation value into PE43711 register format.
+         * Encoding:
+         *     code = attenuation / 0.25
          *
-         * The returned value represents only the attenuation field.
-         * The base implementation of BuildControlWord() uses this value
-         * directly as the control word.
+         * Examples:
+         *     0.00 dB  -> 0
+         *     0.25 dB  -> 1
+         *     10.00 dB -> 40
+         *     31.75 dB -> 127
          *
-         * @param attenuationDb Attenuation in dB.
-         *
-         * @return Encoded attenuation code.
+         * @param attenuationDb Quantized attenuation value.
+         * @return Seven-bit attenuation register.
          */
         [[nodiscard]]
-        uint16_t EncodeAttenuation(double attenuationDb) const override;
+        uint16_t encodeAttenuation(double attenuationDb) const override;
+
 
         /**
-         * Programs the specified control word into the PE43711.
+         * Builds PE43711 SPI transfer word.
          *
-         * Derived platform-specific implementations are responsible for
-         * performing the actual SPI transaction required by the target
-         * hardware.
+         * The PE43711 uses a 16-bit SPI transfer frame. The attenuation register
+         * occupies the lower seven bits of the transfer word.
          *
-         * @param controlWord PE43711 control word.
-         *
-         * @return Operation status.
+         * @param value Encoded attenuation register.
+         * @return SPI transfer word.
          */
-        Error ProgramControlWord(uint16_t controlWord) override = 0;
+        [[nodiscard]]
+        uint16_t buildSpiWord(uint16_t value) const override;
+
+
+    private:
+
+        static constexpr double MinimumAttenuationDb = 0.0;
+        static constexpr double MaximumAttenuationDb = 31.75;
+        static constexpr double StepSizeDb = 0.25;
     };
-}
+
+} // namespace attenuation
+
 #endif //CPPFIRMWAREEMBEDDED_PE43711_HPP

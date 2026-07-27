@@ -8,8 +8,6 @@ Description : HMC624.cpp
 ============================================================================**/
 
 #include "HMC624.hpp"
-#include <string>
-
 
 /******************************************************************************
  *
@@ -68,5 +66,4 @@ namespace attenuation
     Error HMC624::writeBit(const uint8_t index, bool state){
         return gpio.write(index, state);
     }
-
-} // namespace attenuation
+}

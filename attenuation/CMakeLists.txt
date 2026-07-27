@@ -22,10 +22,12 @@ add_executable(${PROJECT_NAME}
 
         HMC624.hpp
         HMC624.cpp
-        # PE4312.hpp
-        # PE4312.cpp
-        # PE43711.hpp
-        # PE43711.cpp
+        PE4312.hpp
+        PE4312.cpp
+        PE43711.hpp
+        PE43711.cpp
+        ADRF5700.cpp
+        ADRF5700.hpp
         # AD9361RxAttenuator.hpp
         # AD9361RxAttenuator.cpp
 )
